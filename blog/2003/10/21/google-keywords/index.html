@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Google Keywords - collusioni.st</title>
+  <meta name="author" content="Michael Buffington">
+
+  
+  <meta name="description" content="
+
+  
+    
+      Google Keywords
+    
+    
+      
+        
+        
+      
+    
+  
+
+
+I&#8217;m usually always amazed at where I show up in Google ra...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link rel="canonical" href="http://collusioni.st/blog/2003/10/21/google-keywords/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="collusioni.st" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+
+  <link rel="stylesheet" href="/stylesheets/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" type="text/css">
+  <script src="/javascripts/bootstrap.min.js"></script>
+
+
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="http://use.typekit.net/vvo8wuf.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8363810-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  
+</head>
+<body   >
+  <header role="banner">
+    <hgroup>
+      <h1><a href="/">collusioni.st</a></h1>
+    </hgroup>
+  </header>
+  <nav role="navigation">
+    <ul class="main-navigation">
+      <li><a href="/">Blog</a></li>
+      <li><a href="/blog/archives">Archives</a></li>
+    </ul>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  <header>
+    
+      <h1 class="entry-title">Google Keywords</h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&#8217;m usually <strong>always</strong> <p>amazed at where I show up in Google rankings for certain keywords. More often then not, people searching for extremely bizarre things end up here, and I get a real kick at looking at my server&#8217;s log files for Google hits.</p><br />
+<p>A while back, I figured out a way to isolate just the Google hits into a log file, and when I recently rebuilt my webserver, completely lost that trick. I will document it here so I never forget again.</p><br />
+<p>First off, I only know how to do this in Apache 1.0 and up. If you&#8217;re using <span class="caps">IIS</span>, you might be out of luck (all the more reason to switch to Apache).</p><br />
+<p>In your httpd.conf file, add the following somewhere:</p><br />
+<p><code>LogFormat &#8220;%{Referer}i -&gt; %U&#8221; google_searches</code></p><br />
+<p>Keen eyes might notice that this is the exact same format for tracking referers. I&#8217;ve split the two in case I ever want to format the log differently in the future.</p><br />
+<p>Within a Virtualhost, add the following (it might be different for you, but I host multiple domains on a single IP, so VirtualHost is the way to go for me):</p><br />
+<p><code>SetEnvIfNoCase Referer google google_ref<br />CustomLog &#8220;|/usr/local/sbin/cronolog /logs/michaelbuffington/google/%Y%m%d.log&#8221; google_search env=google_ref</code></p><br />
+<p>The SetEnvIfNoCase directive, in plain English says &#8220;If, within the Referer field you see the word google, throw everything you know about that particular hit into a variable called google_ref.&#8221; Keep in mind, the word &#8220;google&#8221; in this case is a regular expression (a very simple one). It will match any bit of text with the word google in it, include bogoogle (something Australians do), or pugoogleck (an Eskimo word for &#8220;punch in the eye&#8221;). I might accidently track incoming users that aren&#8217;t coming from Google. That&#8217;s interesting to me too, so I don&#8217;t mind so much.</p><br />
+<p>Then, I get tricky. The CustomLog directive commands Apache to normally just write a log file to a particular location in a particular format (the format being the one I specified in LogFormat earlier, google_search). But in my case, I&#8217;m doing a bit more here. I use a program called cronolog that splits my log files up into seperate files. I&#8217;ve set it up to split them up by day. This works well for me, but it can be totally changed depending on your needs.</p><br />
+<p>I do almost the same thing to my Refers log file as well, except I simply exclude blank referers, as well as referers coming to from my own site. I&#8217;m am, if you haven&#8217;t gathered, fond of outside attention, so I have new referers streamed to my wristwatch using satellites, lasers, and nanotechnology.</p><br />
+<p>I hope that you too will be able to take advantage of this, but don&#8217;t give me credit, that belongs to Apache. You may, however give me cash.</p><br />
+<p><!--StartFragment --><strong>Update:</strong><br />I created a page that shows the <a href="google.cfm" target="">live Google stats</a>. Hopefully this serves to produce even stranger Google searches, as Google does weird ranking stuff if you list your Google stats I&#8217;ve heard.</p><br />
+<p>Also, I changed the pattern of google to &nbsp;([.]<ins>)google([.]</ins>) which looks really funny if you don&#8217;t get the concept of regular expressions. It basically says &quot;match any bit of text that has one or more full stop (the [.]+ part) followed by the word google, followed by one or more full stop again. I probably don&#8217;t need parens around [.]+, but then again, I don&#8217;t really need to wear socks, they&#8217;re just more comfortable. With this fancy new pattern, I should get a lot more actual Google matches. I fixed this because the Live Google Stats page was showing up in the stats, which, as you might appreciate, is a bad thing. </p></p>
+</div>
+  <footer>
+    <p class="meta">
+      <span class="byline author vcard">Posted by <span class="fn">Michael Buffington</span></span>
+      
+      
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2003/10/20/itunes/" title="Previous Post: iTunes">&laquo; iTunes</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2003/10/21/otto/" title="Next Post: Otto">Otto &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <div id="about">
+    <img id="me" src="/images/june19_2012_avatar_t.png" width="70" height="70">
+    <p>A blog about technology, agile, startups, hacking, making, learning, and nano fog.</p>
+    <p>by Michael Buffington</p>
+  </div>
+
+  <div id="network">
+    <a href="http://www.linkedin.com/in/michaelbuffington"><img src="/images/icons/linkedin.png" width="16" height="16" alt="linkedin"></a>
+    <a href="http://twitter.com/#!/go"><img src="/images/icons/twitter.png" width="16" height="16" alt="twitter"></a>
+    <a href="http://www.flickr.com/photos/buffington/"><img src="/images/icons/flickr.png" width="16" height="16" alt="flickr"></a>
+  </div>
+
+  <div id="currently">
+    Currently: <span>making things<span>
+  </div>
+
+  <div id="availability">
+    <p>Making custom Lego parts, a UAV, micro-quadcopters, a test driven Coffeescript chemistry simulation, elevator simulation, blimp simulator, multiplayer Excite Bike, chorded keyboard, and a very messy office.</p>
+  </div>
+  <div id="projects">
+    <h3>Past Projects</h3>
+    <a href="/projects/grasshopper/" id="grasshopper" ><img width="80" height="80" alt="Grasshopper" src="/images/grasshopper_80.png"></a>
+    <a href="/projects/mule/"        id="mule"        ><img width="80" height="80" alt="Mule"        src="/images/mule_80.png"></a>
+    <a href="/projects/grockit/"     id="grockit"     ><img width="80" height="80" alt="Grockit"     src="/images/grockit_80.png"></a>
+    <a href="/projects/measuremap/"  id="measuremap"  ><img width="80" height="80" alt="Measuremap"  src="/images/measuremap_80.png"></a>
+    <a href="/projects/typekit/"     id="typekit"     ><img width="80" height="80" alt="Typekit"     src="/images/typekit_80.png"></a>
+    <a href="/projects/stikkit/"     id="stikkit"     ><img width="80" height="80" alt="Stikkit"     src="/images/stikkit_80.png"></a>
+    <a href="/projects/unroll/"      id="unroll"      ><img width="80" height="80" alt="Unroll"      src="/images/unroll_80.png"></a>
+    <a href="/projects/axonome/"     id="axonome"     ><img width="80" height="80" alt="Axonome"     src="/images/axonome_80.png"></a>
+    <a href="/impactjs/"             id="impactjs"    ><img width="80" height="80" alt="Impactjs"    src="/images/impactjs_80.png"></a>
+  </div>
+  <div style="clear:both;"></div>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo">
+    <p>
+      Copyright &copy; 2016 - Michael Buffington
+    </p>
+  </footer>
+</body>
+</html>

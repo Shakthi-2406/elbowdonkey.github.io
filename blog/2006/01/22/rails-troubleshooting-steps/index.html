@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Rails Troubleshooting Steps - collusioni.st</title>
+  <meta name="author" content="Michael Buffington">
+
+  
+  <meta name="description" content="
+
+  
+    
+      Rails Troubleshooting Steps
+    
+    
+      
+        
+        
+      
+    
+  
+
+
+One of the most difficult things for a new comer to...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link rel="canonical" href="http://collusioni.st/blog/2006/01/22/rails-troubleshooting-steps/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="collusioni.st" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+
+  <link rel="stylesheet" href="/stylesheets/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" type="text/css">
+  <script src="/javascripts/bootstrap.min.js"></script>
+
+
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="http://use.typekit.net/vvo8wuf.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8363810-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  
+</head>
+<body   >
+  <header role="banner">
+    <hgroup>
+      <h1><a href="/">collusioni.st</a></h1>
+    </hgroup>
+  </header>
+  <nav role="navigation">
+    <ul class="main-navigation">
+      <li><a href="/">Blog</a></li>
+      <li><a href="/blog/archives">Archives</a></li>
+    </ul>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  <header>
+    
+      <h1 class="entry-title">Rails Troubleshooting Steps</h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>One of the most difficult things for a new comer to Ruby on Rails to deal with is trying to figure out what&#8217;s wrong when your application won&#8217;t work and, even in development mode, reports the vague and dreaded &#8220;Rails application failed to start properly&#8221; error. I&#8217;ve found, after having felt the pain over the course of the last year a few times, that the problem usually boils down to one of a few things.</p>
+<p><b>Eliminate Web Server Issues</b><br />
+Make sure your web server is running properly. If you&#8217;ve fired up a Webrick server, watch your terminal window to see if it&#8217;s indeed responding to requests. You should see some kind of activity if you&#8217;re hitting your application through a browser. If you&#8217;re using Apache or Lighttpd, make sure that these two are working properly as well by watching their access and error logs.</p>
+<p>If you think the web server is responding, try pulling up a static file. Go to http://localhost:3000/images/rails.png or some other static, non Ruby resource that you know should be there. If you don&#8217;t get back what you expect in Webrick, it&#8217;s possible that Webrick isn&#8217;t functioning properly, and that the shebang line is incorrect (I&#8217;ll talk about that in a second). If you&#8217;re using Apache or Lighttpd, make sure your paths to your application are correct, and make sure that Apache or Lighttpd have permission to serve up the dispatch.cgi or dispatch.fcgi files.</p>
+<p>If you&#8217;re using <span class="caps">FCGI</span> with either Apache or Lighttpd, watch the FastCGI crash log. If you don&#8217;t have a crash log, double check your <span class="caps">FCGI</span> config in your Apache or Lighttpd config file and make sure it&#8217;s logging <span class="caps">FCGI</span> errors.</p>
+<p><b>Getting Things Right</b><br />
+Make sure that the first line, the shebang line, in scripts/server points to your ruby executable. This should be correct but can sometimes be wrong, especially if you didn&#8217;t use the rails executable to build the application (which can happen often if you downloaded the code from another server with different paths).</p>
+<p>In public/ make sure that dispatch.fcgi or dispatch.cgi also has the correct shebang.</p>
+<p>In public/ you should also make sure that you have the hidden .htaccess file if you&#8217;re going to be using Apache and that it&#8217;s sending requests to dispatch.fcgi if you&#8217;re using <span class="caps">FCGI</span>, and dispatch.cgi if you&#8217;re not. Note that often times when you check out applications from Subversion repositories, the .htaccess file might not be in the revision (because Subversion ignores hidden files by default on initial imports).</p>
+<p>If you have a database built and you&#8217;re expecting to get some results back, make sure your config/database.yml file is correct, and that your database server is responding.</p>
+<p><b>Execute Valid Code</b><br />
+It&#8217;s possible to write code that breaks a Rails application before Rails can show you a more informative error. Make sure your code is valid and that you don&#8217;t have any Ruby syntax errors.</p>
+<p><b>Watch Logs</b><br />
+You should always be watching your log/development.log when developing, and if you begin to run into issues that aren&#8217;t clearly apparent in the development log, begin watching both your FastCGI errors log and your web server access and error logs to make sure things are working properly.</p>
+<p><b>If All Else Fails</b><br />
+Use the Rails <a href="http://www.rubyonrails.org/community">community page</a> as your starting point. Check the <a href="http://wiki.rubyonrails.org/rails">Wiki</a>, ask questions on #rubyonrails or send an email to the Rails email list. Make sure that people know exactly what your environment is like. For instance, I develop Rails on OS X 10.4.3 using Ruby 1.8.4 and Rails 1.0 running under Apache 1.3. Describe the circumstances that led to the error, and whether or not you saw errors in your array of logs, and anything else that might be relevant. Usually it doesn&#8217;t get to this stage, but when it does it&#8217;s good to know there a lot of people willing to help you figure it out.</p>
+</div>
+  <footer>
+    <p class="meta">
+      <span class="byline author vcard">Posted by <span class="fn">Michael Buffington</span></span>
+      
+      
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2006/01/17/why-world-of-warcraft-is-so-compelling/" title="Previous Post: Why World of Warcraft is So Compelling">&laquo; Why World of Warcraft is So Compelling</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2006/01/24/small-tweak-for-typo/" title="Next Post: Small Tweak for Typo">Small Tweak for Typo &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <div id="about">
+    <img id="me" src="/images/june19_2012_avatar_t.png" width="70" height="70">
+    <p>A blog about technology, agile, startups, hacking, making, learning, and nano fog.</p>
+    <p>by Michael Buffington</p>
+  </div>
+
+  <div id="network">
+    <a href="http://www.linkedin.com/in/michaelbuffington"><img src="/images/icons/linkedin.png" width="16" height="16" alt="linkedin"></a>
+    <a href="http://twitter.com/#!/go"><img src="/images/icons/twitter.png" width="16" height="16" alt="twitter"></a>
+    <a href="http://www.flickr.com/photos/buffington/"><img src="/images/icons/flickr.png" width="16" height="16" alt="flickr"></a>
+  </div>
+
+  <div id="currently">
+    Currently: <span>making things<span>
+  </div>
+
+  <div id="availability">
+    <p>Making custom Lego parts, a UAV, micro-quadcopters, a test driven Coffeescript chemistry simulation, elevator simulation, blimp simulator, multiplayer Excite Bike, chorded keyboard, and a very messy office.</p>
+  </div>
+  <div id="projects">
+    <h3>Past Projects</h3>
+    <a href="/projects/grasshopper/" id="grasshopper" ><img width="80" height="80" alt="Grasshopper" src="/images/grasshopper_80.png"></a>
+    <a href="/projects/mule/"        id="mule"        ><img width="80" height="80" alt="Mule"        src="/images/mule_80.png"></a>
+    <a href="/projects/grockit/"     id="grockit"     ><img width="80" height="80" alt="Grockit"     src="/images/grockit_80.png"></a>
+    <a href="/projects/measuremap/"  id="measuremap"  ><img width="80" height="80" alt="Measuremap"  src="/images/measuremap_80.png"></a>
+    <a href="/projects/typekit/"     id="typekit"     ><img width="80" height="80" alt="Typekit"     src="/images/typekit_80.png"></a>
+    <a href="/projects/stikkit/"     id="stikkit"     ><img width="80" height="80" alt="Stikkit"     src="/images/stikkit_80.png"></a>
+    <a href="/projects/unroll/"      id="unroll"      ><img width="80" height="80" alt="Unroll"      src="/images/unroll_80.png"></a>
+    <a href="/projects/axonome/"     id="axonome"     ><img width="80" height="80" alt="Axonome"     src="/images/axonome_80.png"></a>
+    <a href="/impactjs/"             id="impactjs"    ><img width="80" height="80" alt="Impactjs"    src="/images/impactjs_80.png"></a>
+  </div>
+  <div style="clear:both;"></div>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo">
+    <p>
+      Copyright &copy; 2016 - Michael Buffington
+    </p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>I Heap Scorn Upon Ruby&#x27;s Time Class - collusioni.st</title>
+  <meta name="author" content="Michael Buffington">
+
+  
+  <meta name="description" content="
+
+  
+    
+      I Heap Scorn Upon Ruby&#x27;s Time Class
+    
+    
+      
+        
+        
+      
+    
+  
+
+
+So this is a pure out and out rant aga...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link rel="canonical" href="http://collusioni.st/blog/2006/10/11/i-heap-scorn-upon-ruby-s-time-class/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="collusioni.st" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+
+  <link rel="stylesheet" href="/stylesheets/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" type="text/css">
+  <script src="/javascripts/bootstrap.min.js"></script>
+
+
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="http://use.typekit.net/vvo8wuf.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8363810-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  
+</head>
+<body   >
+  <header role="banner">
+    <hgroup>
+      <h1><a href="/">collusioni.st</a></h1>
+    </hgroup>
+  </header>
+  <nav role="navigation">
+    <ul class="main-navigation">
+      <li><a href="/">Blog</a></li>
+      <li><a href="/blog/archives">Archives</a></li>
+    </ul>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  <header>
+    
+      <h1 class="entry-title">I Heap Scorn Upon Ruby&#x27;s Time Class</h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>So this is a pure out and out rant against Ruby, and it&#8217;s short, and when it comes down to it it&#8217;s the kind of rant that gets hard core developers to say &#8220;so just do it the right way yourself&#8221;. To them, I say &#8220;do it the right way <strong>yourself</strong>&#8221; preemptively and launch into my rant.</p>
+<p>The Ruby Time class sucks. If I do Time.now, I get back a time object tied to my current time zone, which it determines by looking at what time zone my computer is set to. Not that big of a deal.</p>
+<p>&gt;&gt; Time.now<br />
+=&gt; Wed Oct 11 00:01:43 <span class="caps">PDT</span> 2006</p>
+<p>The problem is, I can&#8217;t adjust that time zone at all, not without some pretty serious hacks, and that&#8217;s stupid. I can&#8217;t even create a <span class="caps">UTC</span> time (essentially Greenwich Mean Time) and say &#8220;Hey, this time here, let&#8217;s convert it to Mountain Standard Time&#8221;, or even <span class="caps">GMT</span>-7 for that matter. Once it&#8217;s <span class="caps">UTC</span>, always <span class="caps">UTC</span>. Once it&#8217;s <span class="caps">PDT</span>, always <span class="caps">PDT</span>.</p>
+<p>Of course there are hacks (and truthfully, I&#8217;ve already come up with a not so elegant solution which I won&#8217;t yet share [can&#8217;t effectively rant and foam at the mouth with a solution in hand]) but Ruby should just make this easy. I should be able to do:</p>
+<p>&gt;&gt;t = Time.now<br />
+=&gt; Wed Oct 11 00:01:43 <span class="caps">PDT</span> 2006<br />
+&gt;&gt;t.convert(&#8220;<span class="caps">GMT</span>-6&#8221;)<br />
+=&gt; Wed Oct 11 01:01:43 <span class="caps">MDT</span> 2006</p>
+<p>But I can&#8217;t. I can&#8217;t even extend the Time class by making a Time#convert that will return the time as <span class="caps">MDT</span> without converting the original time to a string, individually poking at it&#8217;s parts, messing with system internals that may break other stuff, and hope that it&#8217;ll go quickly.</p>
+<p>Ruby, why do you hurt me so?</p>
+<p>Also, I know about <a href="http://tzinfo.rubyforge.org/">TZinfo</a> and it&#8217;s giganté sized pile of international time zones. It&#8217;s a good library, but not very fast, and converting one time to another time when you don&#8217;t know exactly what zone you&#8217;re converting too or from is nigh impossible.</p>
+<p>Perhaps when Ruby is back in my good graces (tomorrow morning after a vigorous night of sleeping) I&#8217;ll write up my solution.</p>
+</div>
+  <footer>
+    <p class="meta">
+      <span class="byline author vcard">Posted by <span class="fn">Michael Buffington</span></span>
+      
+      
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2006/10/07/in-which-i-describe-my-lovely-saturday/" title="Previous Post: In which I describe my lovely Saturday">&laquo; In which I describe my lovely Saturday</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2006/10/12/hair-of-the-dog/" title="Next Post: Hair of the dog">Hair of the dog &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <div id="about">
+    <img id="me" src="/images/june19_2012_avatar_t.png" width="70" height="70">
+    <p>A blog about technology, agile, startups, hacking, making, learning, and nano fog.</p>
+    <p>by Michael Buffington</p>
+  </div>
+
+  <div id="network">
+    <a href="http://www.linkedin.com/in/michaelbuffington"><img src="/images/icons/linkedin.png" width="16" height="16" alt="linkedin"></a>
+    <a href="http://twitter.com/#!/go"><img src="/images/icons/twitter.png" width="16" height="16" alt="twitter"></a>
+    <a href="http://www.flickr.com/photos/buffington/"><img src="/images/icons/flickr.png" width="16" height="16" alt="flickr"></a>
+  </div>
+
+  <div id="currently">
+    Currently: <span>making things<span>
+  </div>
+
+  <div id="availability">
+    <p>Making custom Lego parts, a UAV, micro-quadcopters, a test driven Coffeescript chemistry simulation, elevator simulation, blimp simulator, multiplayer Excite Bike, chorded keyboard, and a very messy office.</p>
+  </div>
+  <div id="projects">
+    <h3>Past Projects</h3>
+    <a href="/projects/grasshopper/" id="grasshopper" ><img width="80" height="80" alt="Grasshopper" src="/images/grasshopper_80.png"></a>
+    <a href="/projects/mule/"        id="mule"        ><img width="80" height="80" alt="Mule"        src="/images/mule_80.png"></a>
+    <a href="/projects/grockit/"     id="grockit"     ><img width="80" height="80" alt="Grockit"     src="/images/grockit_80.png"></a>
+    <a href="/projects/measuremap/"  id="measuremap"  ><img width="80" height="80" alt="Measuremap"  src="/images/measuremap_80.png"></a>
+    <a href="/projects/typekit/"     id="typekit"     ><img width="80" height="80" alt="Typekit"     src="/images/typekit_80.png"></a>
+    <a href="/projects/stikkit/"     id="stikkit"     ><img width="80" height="80" alt="Stikkit"     src="/images/stikkit_80.png"></a>
+    <a href="/projects/unroll/"      id="unroll"      ><img width="80" height="80" alt="Unroll"      src="/images/unroll_80.png"></a>
+    <a href="/projects/axonome/"     id="axonome"     ><img width="80" height="80" alt="Axonome"     src="/images/axonome_80.png"></a>
+    <a href="/impactjs/"             id="impactjs"    ><img width="80" height="80" alt="Impactjs"    src="/images/impactjs_80.png"></a>
+  </div>
+  <div style="clear:both;"></div>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo">
+    <p>
+      Copyright &copy; 2016 - Michael Buffington
+    </p>
+  </footer>
+</body>
+</html>

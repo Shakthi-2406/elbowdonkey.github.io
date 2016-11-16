@@ -1,0 +1,524 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title> - collusioni.st</title>
+  <meta name="author" content="Michael Buffington">
+
+  
+  <meta name="description" content="
+  
+
+  
+  
+    
+      
+    
+      Mongrel and Capistrano
+    
+    
+      
+        
+        
+      
+    
+  
+
+
+  Rails and Capistrano, by default, do...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link rel="canonical" href="http://collusioni.st/blog/posts/5/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="collusioni.st" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+
+  <link rel="stylesheet" href="/stylesheets/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" type="text/css">
+  <script src="/javascripts/bootstrap.min.js"></script>
+
+
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="http://use.typekit.net/vvo8wuf.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8363810-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  
+</head>
+<body   >
+  <header role="banner">
+    <hgroup>
+      <h1><a href="/">collusioni.st</a></h1>
+    </hgroup>
+  </header>
+  <nav role="navigation">
+    <ul class="main-navigation">
+      <li><a href="/">Blog</a></li>
+      <li><a href="/blog/archives">Archives</a></li>
+    </ul>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/11/mongrel-and-capistrano/">Mongrel and Capistrano</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Rails and Capistrano, by default, don&#8217;t quite handle the concept of deploying to multiple production environments. I often find myself deploying production ready applications to a staging virtual host on the same machine the production virtual host runs on so the client can approve work before pushing it live.</p>
+<p>I settled on a pretty clean setup today to make this kind of thing dead simple. I&#8217;m assuming you&#8217;re already familiar with how to <a href="http://blog.codahale.com/2006/06/19/time-for-a-grown-up-server-rails-mongrel-apache-capistrano-and-you/">setup mongrel clusters</a>, and that you&#8217;ve got the balancer in Apache or whatever forward httpd server figured out and running.</p>
+
+<pre><code>&lt;ol&gt;
+	&lt;li&gt;Step one: Create two mongrel cluster config files
+	&lt;ol&gt;
+		&lt;li&gt;Call the first one staging.cluster.yml&lt;/li&gt;
+	&lt;/ol&gt;&lt;/li&gt;
+&lt;/ol&gt;&lt;hr /&gt;
+</code></pre>
+<p>cwd: &#8220;/path/to/staging/yourapp/current&#8221;<br />
+port: &#8220;8000&#8221;<br />
+environment: production<br />
+address: 127.0.0.1<br />
+pid_file: &#8220;log/staging.pid&#8221;<br />
+servers: 3</p>
+
+<pre><code>	&lt;ol&gt;
+		&lt;li&gt;Call the second one production.cluster.yml&lt;/li&gt;
+	&lt;/ol&gt;&lt;hr /&gt;
+</code></pre>
+<p>cwd: &#8220;/path/to/production/yourapp/current&#8221;<br />
+port: &#8220;8003&#8221;<br />
+environment: production<br />
+address: 127.0.0.1<br />
+pid_file: &#8220;log/production.pid&#8221;<br />
+servers: 3</p>
+
+<pre><code>&lt;ol&gt;
+	&lt;li&gt;Step two: Modify deploy.rb&lt;/li&gt;
+&lt;/ol&gt;&lt;p&gt;require &amp;#8216;mongrel_cluster/recipes&amp;#8217;&lt;br /&gt; &lt;span class="caps"&gt;ENV&lt;/span&gt;[&amp;#8216;DEPLOY_TO&amp;#8217;] ||= &amp;#8216;staging&amp;#8217;&lt;/p&gt;
+</code></pre>
+<p>set :application, &#8220;yourapp&#8221;<br />
+set :repository, &#8220;http://path/to/svn/repo&#8221;<br />
+role :web, &#8220;192.168.1.1&#8221;<br />
+role :app, &#8220;192.168.1.1&#8221;</p>
+<p>set :deploy_to, &#8220;/path/to/#{ENV[&#8216;DEPLOY_TO&#8217;]}/#{application}&#8221;<br />
+set :mongrel_conf, &#8220;#{current_path}/config/#{ENV[&#8216;DEPLOY_TO&#8217;]}.cluster.yml&#8221;<br />
+set :svn, &#8220;/usr/local/bin/svn&#8221;</p>
+
+<pre><code>&lt;ol&gt;
+	&lt;li&gt;Step three: deploy&lt;/li&gt;
+&lt;/ol&gt;&lt;p&gt;No need to setup any custom tasks for each production environment, I simply set an environment variable and tell capistrano to deploy. Because I default &lt;span class="caps"&gt;ENV&lt;/span&gt;[&amp;#8216;DEPLOY_TO&amp;#8217;] to staging, deploying to staging is dead simple. I made it harder to deploy to production because one would think that if you have a staging step in your deployment processes at all, chances are typing the few extra characters to indicate a production deployment are worth it.&lt;/p&gt;
+</code></pre>
+<p>DEPLOY_TO=production cap deploy</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/09/cnni-style-headlines/">CNNi Style Headlines</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I got a bit obsessive tonight and set myself up with a challenge. After watching one of CNN&#8217;s international news broadcasts, I got interested in recreating their new on screen headline graphics with <span class="caps">HTML</span> and Javascript. Here&#8217;s what it looks like:</p>
+<p>Effect.BlindLeft = function(element) {<br />
+element = $(element);<br />
+element.makeClipping();<br />
+return new Effect.Scale(element, 0,<br />
+Object.extend({ scaleContent: false,<br />
+scaleY: false,<br />
+restoreAfterFinish: true,<br />
+afterFinishInternal: function(effect) {<br />
+effect.element.hide();<br />
+effect.element.undoClipping();<br />
+}<br />
+}, arguments<sup class="footnote"><a href="#fn1">1</a></sup> || {})<br />
+);<br />
+}</p>
+<p>Effect.BlindRight = function(element) {<br />
+element = $(element);<br />
+var elementDimensions = element.getDimensions();<br />
+return new Effect.Scale(element, 100,<br />
+Object.extend({ scaleContent: false,<br />
+scaleY: false,<br />
+scaleFrom: 0,<br />
+scaleMode: {originalHeight: elementDimensions.height, originalWidth: elementDimensions.width},<br />
+restoreAfterFinish: true,<br />
+afterSetup: function(effect) {<br />
+effect.element.makeClipping();<br />
+effect.element.setStyle({width: &#8217;0px&#8217;});<br />
+effect.element.show();<br />
+},<br />
+afterFinishInternal: function(effect) {<br />
+effect.element.undoClipping();<br />
+}<br />
+}, arguments<sup class="footnote"><a href="#fn1">1</a></sup> || {})<br />
+);<br />
+}</p>
+<p>Effect.DelayedChain = Class.create();<br />
+Object.extend(Effect.DelayedChain.prototype, {<br />
+initialize: function(effect, elements, options, timeout){<br />
+this.elements = elements;<br />
+this.effect = effect;<br />
+this.timeout = timeout || 100;<br />
+this.options = Object.extend({}, options || {});</p>
+<p>this.afterFinish = this.options.afterFinish || Prototype.emptyFunction;<br />
+this.options.afterFinish = Prototype.emptyFunction;<br />
+setTimeout(this.action.bind(this),1);<br />
+},<br />
+action: function() {<br />
+if(this.elements.length){<br />
+new Effect[this.effect](this.elements.shift(), this.options);<br />
+setTimeout(this.action.bind(this), this.timeout);<br />
+} else {<br />
+if(this.afterFinish) this.afterFinish();<br />
+}<br />
+}<br />
+});</p>
+<p>Effect.Chain = Class.create();<br />
+Object.extend(Effect.Chain.prototype, {<br />
+initialize: function(effect, elements, options){<br />
+this.elements = elements || [];<br />
+this.effect = effect;<br />
+this.options = options || {};<br />
+this.afterFinish = this.options.afterFinish || Prototype.emptyFunction;<br />
+this.options.afterFinish = this.nextEffect.bind(this);<br />
+setTimeout(this.nextEffect.bind(this), 1);<br />
+},<br />
+nextEffect: function(){<br />
+if(this.elements.length)<br />
+new Effect[this.effect](this.elements.shift(), this.options);<br />
+else<br />
+this.afterFinish();<br />
+}<br />
+});</p>
+<p>.headline_text {<br />
+font-family: helvetica;<br />
+font-size: 2em;<br />
+color: white;<br />
+background-color: black;<br />
+padding: 4px;<br />
+}<br />
+.headline_bg {<br />
+font-family: helvetica;<br />
+font-size: 2em;<br />
+color: grey;<br />
+background-color: grey;<br />
+padding: 4px;<br />
+}</p>
+<div id="word" style="overflow:hidden;">
+<div class="headline_text" id="bg_one" style="position:relative;top:-300px;left:0;z-index:10;"><span>Primates learn how</span></div>
+<div class="headline_text" id="bg_two" style="position:relative;top:-300px;z-index:10;"><span>to make blueberry pancakes and blintzes</span></div>
+<div class="headline_bg" id="head_bg_one" style="position:relative;top:-300px;">.</div>
+<div class="headline_bg" id="head_bg_two" style="position:relative;top:-300px;">.</div>
+</div>
+<p>/*<br />
+elements all sit off in an hidden overflow area at top of -300px.<br />
+This is so we can get the rendered width of the text, which we use to build out the divs and such. if it were display:none it&#8217;d have no width at all.</p>
+<p>headline_bg&#8217;s build out from left to right, with about 4 frames total<br />
+then the headline words themselves, with black, fill in at about the same speed<br />
+*/</p>
+<p>// get the widths of our two lines<br />
+var widths = [$(&#8216;word_one&#8217;).offsetWidth+4,$(&#8216;word_two&#8217;).offsetWidth+4];<br />
+var heights = [($(&#8216;word_one&#8217;).offsetHeight+8)<strong>2,($(&#8216;word_two&#8217;).offsetHeight+8)</strong>2];</p>
+<p>// hide, set positions and widths of grey bg<br />
+$(&#8216;head_bg_one&#8217;).style.display = &#8220;none&#8221;;<br />
+$(&#8216;head_bg_two&#8217;).style.display = &#8220;none&#8221;;<br />
+$(&#8216;head_bg_one&#8217;).style.width = widths<sup class="footnote"><a href="#fn0">0</a></sup> + &#8220;px&#8221;;<br />
+$(&#8216;head_bg_two&#8217;).style.width = widths<sup class="footnote"><a href="#fn1">1</a></sup> + &#8220;px&#8221;;<br />
+$(&#8216;head_bg_one&#8217;).style.top = -heights<sup class="footnote"><a href="#fn0">0</a></sup> + &#8220;px&#8221;;<br />
+$(&#8216;head_bg_two&#8217;).style.top = -heights<sup class="footnote"><a href="#fn1">1</a></sup> + &#8220;px&#8221;;</p>
+<p>// hide, set positions and widths of words<br />
+$(&#8216;bg_one&#8217;).style.display = &#8220;none&#8221;;<br />
+$(&#8216;bg_two&#8217;).style.display = &#8220;none&#8221;;</p>
+<p>$(&#8216;bg_one&#8217;).style.width = widths<sup class="footnote"><a href="#fn0">0</a></sup> + &#8220;px&#8221;;<br />
+$(&#8216;bg_two&#8217;).style.width = widths<sup class="footnote"><a href="#fn1">1</a></sup> + &#8220;px&#8221;;<br />
+$(&#8216;bg_one&#8217;).style.top = &#8220;0px&#8221;;<br />
+$(&#8216;bg_two&#8217;).style.top = &#8220;0px&#8221;;</p>
+<p>$(&#8216;word&#8217;).style.height = (heights<sup class="footnote"><a href="#fn0">0</a></sup>) + &#8220;px&#8221;;</p>
+<p>function shakedown() {<br />
+new Effect.DelayedChain(&#8216;BlindRight&#8217;, [&#8216;head_bg_one&#8217;,&#8216;head_bg_two&#8217;, &#8216;bg_one&#8217;, &#8216;bg_two&#8217;], { duration: 0.25 }, 100);<br />
+}</p>
+<p>setTimeout(&#8216;shakedown()&#8217;, 100);</p>
+<p><a href="#">See it again.</a></p>
+<p>It&#8217;s not perfect, but its fun. This can be dropped into Rails apps pretty easily or adapated to a non rails app. Check out more code after the jump.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/06/splog-attack/">Splog Attack</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Watching Luis von Ahn talk about <a href="http://video.google.com/videoplay?docid=-8246463980976635143">building games to help solve problems with humans that computers can&#8217;t figure out</a> is incredibly inspiring to me. He does a great job of breaking down what seems to work, and what doesn&#8217;t work, when designing a game that takes otherwise totally boring, menial tasks and turns them into compelling challenges.</p>
+<p>While making the menial fun is great, I&#8217;m even more inspired by how simple some of these problems are to solve. I&#8217;ve mapped out several game ideas that, if executed with the same approach as Luis&#8217; games, would be dead easy to build.</p>
+<p>With that said, I&#8217;d like to present splog attack. This is what Luis would describe as a symetrical verification game. Player 1 sees a blog entry, and makes a single determination &#8211; is it spam or not. Player 2 makes the same determination. If both come to the same conclusion they get points, and both move on to another round.</p>
+<p>But there&#8217;s a twist, interestingly, thrown in to fight against bots fouling the results. In addition to having to determine if the blog entry is spam, the players see three blog entries at a time from different blogs. Both players get the entries in random order, and must agree on all three blog entries, matching a spam label to the same spam label their counterpart matched. It doesn&#8217;t totally eliminate bots from making random choices, but it certainly makes it harder.</p>
+<p>So what can you do with the results? Wired Magazine just ran an article talking about some of problems search engines face with detecting spam blogs, and how they are having a difficult time weeding out the good from the bad. It&#8217;s very easy for a human to see even just a sentence and make the determination that something isn&#8217;t right, but far more difficult for a computer.</p>
+<p>Push a particular blog through that filter enough times and you end up having a pretty clear picture of what&#8217;s spam and what&#8217;s not. Reward players for figuring it out quickly, and they may even outpace the production rate of spam blog bots, turning the tide. Provide search engines with the results, and spam blogs may become irrellavent.</p>
+<p>While part of me would love to see the game succeed in killing spam, I&#8217;d miss the weird sort of anonymous interaction with another human mind. When you&#8217;re both right, it feels great, and out ranking others doing the same thing is a lot of fun, especially knowing it&#8217;s helping fight spam blogs.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/30/foocamp-06-report/">Foocamp 06 Report</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://conferences.oreillynet.com/cs/etel2006/view/e_spkr/2552">Aaron Huslage</a> and I were talking about our experience at foocamp this year, and we both agreed that it was nearly religious. Everyone there, in one way or another, has helped shaped the past and current face of anything Internet related, and being able to talk face to face with pioneers and phenoms back to back was a unique and much savored experience.</p>
+<p>The highlight of the trip, without a doubt, was playing Werewolf. It had been described to me prior to the trip, and I thought it sounded a bit silly, and not worth trying, but my opinion swayed rapidly. The first night I played, I still hadn&#8217;t met a lot of people and didn&#8217;t really know people by face, so I found myself unabashedly calling <a href="http://digg.com/">digg</a>&#8216;s <span class="caps">CEO</span> <a href="http://en.wikipedia.org/wiki/Jay_Adelson">Jay Adelson</a> &#8220;a shifty looking sort of guy, smug in his shiftiness.&#8221; In another game, I double crossed <a href="http://www.ventureblog.com/">David Hornik</a>. At first it was bitter sweet, as David&#8217;s a pretty nice guy, but I was a werewolf, which meant it was my job to secretly kill people off. David was next to me, convinced I wasn&#8217;t the werewolf. The second I got a chance, I killed him off, and felt a bit bad about it until I&#8217;d later found out that he was planning on getting me killed the next round anyways.</p>
+<p>Playing werewolf with people I have massive respect for was great, but just being at the event at all was something I&#8217;ll always be thankful for. I learned a ton in a single weekend, made some great connections, and strengthened some of the ideas I&#8217;ve been carrying around for a while (ideas of which I&#8217;ll beging to unfold here as time goes on).</p>
+<p>Knowing that my &#8220;good deeds&#8221; throughout the next year might help get me another invite makes for serious motivation, and I&#8217;m getting started now.</p>
+<p>Thanks Tim! (and whoever nominated me to come this year!)</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/24/japan-toilets/">Japan. Toilets.</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>All I gotta say is there&#8217;s a lot of people in Japan who run as fast as they can to a toilet.</p>
+<p>[youtube=http://www.youtube.com/watch?v=8gNsDp2N6yM]</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/24/i-can-t-get-enough/">I Can&#x27;t Get Enough</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I think I&#8217;m going to learn Japanese primarily so I can become better at finding things like this:</p>
+<p>[youtube=http://www.youtube.com/watch?v=tVNNduNxbho]</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/24/two-things/">Two Things</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>For nearly a month I&#8217;ve been ignoring instant messenger. It&#8217;s not you, it&#8217;s me. It got to the point where even though I&#8217;d open iChat and &#8220;get online&#8221;, I&#8217;d hide the app all day, and totally ignore all incoming bips and beeps. It started getting really easy to ignore, and I haven&#8217;t really sat down and thought of why I continue to have it on at all until right now.</p>
+<p>See, I suspect that if I leave it off for more than a few days, people will begin to wonder if I&#8217;m in some kind of trouble. When Buffington isn&#8217;t online, surely some sort of crazy must be percolating. So I leave it on so people know I&#8217;m alive. After fooCamp this weekend followed by some more travel, I&#8217;ll begin to respond. I promise.</p>
+<p>Second thing. I&#8217;ve been home alone for the past several days and it&#8217;s not the thing for me. It&#8217;s nice getting a lot of uninterrupted computer time in, keeping that flow going, but it makes me crazy too. I talk out loud a lot, and practice improbably official voices for myself while cooking eggs and beans in the same pan, wondering if tomato soup would help. I practice shifty socked dances while the eggs and beans marinate in tomato soup, and consider adding the tamatillo sauce to my delightful looking meal.</p>
+<p>Being alone is what makes people crack. People who&#8217;d otherwise lead healthy productive lives turn into babbling lunatics, and stand in the middle of a room wondering what to do next. Not having kids underfoot and tasks to complete spins me right out of control. It is not, for example, acceptable to be writing this with one sock on, sitting on a chair in the kitchen while the TV plays country music videos because it, in my own spoken out loud words (in a very official tone) &#8220;y&#8217;alls gotta make some kinda peace with yer fellow Americans, and country is the salve that&#8217;ll do &#8217;er.&#8221;</p>
+<p>If not for the Internet and all of her peoples, I&#8217;d be making mountains out of mashed potatoes by now.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/22/swedish-fart/">Swedish Fart</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>My linking to this is proof that I&#8217;m a dork. A 14 year old dork.</p>
+<p>[youtube=http://www.youtube.com/watch?v=MPbB2P4XT_4]</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/22/silent-torture/">Silent Torture</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I cried real tears watching this. The slapping machine about midway through sent me over the edge.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/08/21/graph-paper-generator/">Graph Paper Generator</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When it comes to geometry problems (such as the ones I&#8217;m faced with when building isometric perspective games), I typically do better if I can sketch out my desired outcome. Doing so can be a challenge in itself if my sketches aren&#8217;t proportionally correct, so I just sort of wing it.</p>
+<p>Fed up with winging it, I set out to find some <a href="http://www.google.com/search?hl=en&amp;q=isometric+graph+paper&amp;btnG=Google+Search">isometric graph paper</a> to purchase, and instead found what I think is one of the coolest sites I&#8217;ve ever seen. Behold, the <a href="http://www.incompetech.com/beta/plainGraphPaper/">graph paper generator</a>. Pick from several different styles of graph paper and tweak colors and grid size to your hearts content, generating a <span class="caps">PDF</span> that you can print when finished.</p>
+</div>
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/posts/6/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/blog/posts/4/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <div id="about">
+    <img id="me" src="/images/june19_2012_avatar_t.png" width="70" height="70">
+    <p>A blog about technology, agile, startups, hacking, making, learning, and nano fog.</p>
+    <p>by Michael Buffington</p>
+  </div>
+
+  <div id="network">
+    <a href="http://www.linkedin.com/in/michaelbuffington"><img src="/images/icons/linkedin.png" width="16" height="16" alt="linkedin"></a>
+    <a href="http://twitter.com/#!/go"><img src="/images/icons/twitter.png" width="16" height="16" alt="twitter"></a>
+    <a href="http://www.flickr.com/photos/buffington/"><img src="/images/icons/flickr.png" width="16" height="16" alt="flickr"></a>
+  </div>
+
+  <div id="currently">
+    Currently: <span>making things<span>
+  </div>
+
+  <div id="availability">
+    <p>Making custom Lego parts, a UAV, micro-quadcopters, a test driven Coffeescript chemistry simulation, elevator simulation, blimp simulator, multiplayer Excite Bike, chorded keyboard, and a very messy office.</p>
+  </div>
+  <div id="projects">
+    <h3>Past Projects</h3>
+    <a href="/projects/grasshopper/" id="grasshopper" ><img width="80" height="80" alt="Grasshopper" src="/images/grasshopper_80.png"></a>
+    <a href="/projects/mule/"        id="mule"        ><img width="80" height="80" alt="Mule"        src="/images/mule_80.png"></a>
+    <a href="/projects/grockit/"     id="grockit"     ><img width="80" height="80" alt="Grockit"     src="/images/grockit_80.png"></a>
+    <a href="/projects/measuremap/"  id="measuremap"  ><img width="80" height="80" alt="Measuremap"  src="/images/measuremap_80.png"></a>
+    <a href="/projects/typekit/"     id="typekit"     ><img width="80" height="80" alt="Typekit"     src="/images/typekit_80.png"></a>
+    <a href="/projects/stikkit/"     id="stikkit"     ><img width="80" height="80" alt="Stikkit"     src="/images/stikkit_80.png"></a>
+    <a href="/projects/unroll/"      id="unroll"      ><img width="80" height="80" alt="Unroll"      src="/images/unroll_80.png"></a>
+    <a href="/projects/axonome/"     id="axonome"     ><img width="80" height="80" alt="Axonome"     src="/images/axonome_80.png"></a>
+    <a href="/impactjs/"             id="impactjs"    ><img width="80" height="80" alt="Impactjs"    src="/images/impactjs_80.png"></a>
+  </div>
+  <div style="clear:both;"></div>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo">
+    <p>
+      Copyright &copy; 2016 - Michael Buffington
+    </p>
+  </footer>
+</body>
+</html>

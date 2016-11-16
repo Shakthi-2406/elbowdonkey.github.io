@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title> - collusioni.st</title>
+  <meta name="author" content="Michael Buffington">
+
+  
+  <meta name="description" content="
+  
+
+  
+  
+    
+      
+    
+      I Heap Scorn Upon Ruby&#x27;s Time Class
+    
+    
+      
+        
+        
+      
+    
+  
+
+
+  So this is a pure ...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link rel="canonical" href="http://collusioni.st/blog/posts/4/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="collusioni.st" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+
+  <link rel="stylesheet" href="/stylesheets/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" type="text/css">
+  <script src="/javascripts/bootstrap.min.js"></script>
+
+
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="http://use.typekit.net/vvo8wuf.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8363810-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  
+</head>
+<body   >
+  <header role="banner">
+    <hgroup>
+      <h1><a href="/">collusioni.st</a></h1>
+    </hgroup>
+  </header>
+  <nav role="navigation">
+    <ul class="main-navigation">
+      <li><a href="/">Blog</a></li>
+      <li><a href="/blog/archives">Archives</a></li>
+    </ul>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/10/11/i-heap-scorn-upon-ruby-s-time-class/">I Heap Scorn Upon Ruby&#x27;s Time Class</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So this is a pure out and out rant against Ruby, and it&#8217;s short, and when it comes down to it it&#8217;s the kind of rant that gets hard core developers to say &#8220;so just do it the right way yourself&#8221;. To them, I say &#8220;do it the right way <strong>yourself</strong>&#8221; preemptively and launch into my rant.</p>
+<p>The Ruby Time class sucks. If I do Time.now, I get back a time object tied to my current time zone, which it determines by looking at what time zone my computer is set to. Not that big of a deal.</p>
+<p>&gt;&gt; Time.now<br />
+=&gt; Wed Oct 11 00:01:43 <span class="caps">PDT</span> 2006</p>
+<p>The problem is, I can&#8217;t adjust that time zone at all, not without some pretty serious hacks, and that&#8217;s stupid. I can&#8217;t even create a <span class="caps">UTC</span> time (essentially Greenwich Mean Time) and say &#8220;Hey, this time here, let&#8217;s convert it to Mountain Standard Time&#8221;, or even <span class="caps">GMT</span>-7 for that matter. Once it&#8217;s <span class="caps">UTC</span>, always <span class="caps">UTC</span>. Once it&#8217;s <span class="caps">PDT</span>, always <span class="caps">PDT</span>.</p>
+<p>Of course there are hacks (and truthfully, I&#8217;ve already come up with a not so elegant solution which I won&#8217;t yet share [can&#8217;t effectively rant and foam at the mouth with a solution in hand]) but Ruby should just make this easy. I should be able to do:</p>
+<p>&gt;&gt;t = Time.now<br />
+=&gt; Wed Oct 11 00:01:43 <span class="caps">PDT</span> 2006<br />
+&gt;&gt;t.convert(&#8220;<span class="caps">GMT</span>-6&#8221;)<br />
+=&gt; Wed Oct 11 01:01:43 <span class="caps">MDT</span> 2006</p>
+<p>But I can&#8217;t. I can&#8217;t even extend the Time class by making a Time#convert that will return the time as <span class="caps">MDT</span> without converting the original time to a string, individually poking at it&#8217;s parts, messing with system internals that may break other stuff, and hope that it&#8217;ll go quickly.</p>
+<p>Ruby, why do you hurt me so?</p>
+<p>Also, I know about <a href="http://tzinfo.rubyforge.org/">TZinfo</a> and it&#8217;s giganté sized pile of international time zones. It&#8217;s a good library, but not very fast, and converting one time to another time when you don&#8217;t know exactly what zone you&#8217;re converting too or from is nigh impossible.</p>
+<p>Perhaps when Ruby is back in my good graces (tomorrow morning after a vigorous night of sleeping) I&#8217;ll write up my solution.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/10/07/in-which-i-describe-my-lovely-saturday/">In Which I Describe My Lovely Saturday</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today was full of ambition, full of failure. To start:</p>
+<p>Went to get the truck&#8217;s crunchy feeling brake pads replaced. Had an appointment and everything, and after the mechanic looked at if for two hours, he came back out and said &#8220;All set, we made some adjustments and replaced your wiper blades. And oh, the only way to fix that crunchy feeling is to replace your brake pads, otherwise the rotor will get messed up.&#8221;</p>
+<p>I asked if he could just do that now, and, seriously, he said &#8220;Oh, well, we&#8217;re all booked up now, you&#8217;ll have to make an appointment.&#8221;</p>
+<p>Later on I figured I&#8217;d have a better hand at making some code work for a client project I&#8217;m finishing up. In this case, I needed to get ImageMagick and Ruby to work nicely with each other on my machine.</p>
+<p>Let me just say this &#8211; if the journey to get that combo working starts in say, Los Angeles, then the destination is, I don&#8217;t know, somewhere at the core of Jupiter. I have never in my life seen such a brittle installation of software. One part requires another part, which requires another part of a certain version, which in turn needs all parts to be Capricorns unless they were born in a leap year at which point they need be Sagitarius, and you must  make sure you already have a natural gas dryer, fourteen boa constrictors, three of them female, an Audi Quattro balancing on two wheels, a Pygmy who can speak Mandarin while feeding narcaleptic goats with his belly button, and a bathtub full of nachos, cats, and silent children.</p>
+<p>And so, I spent nearly my entire day working feverishly, but getting absolutely nothing accomplished.</p>
+<p>This sort of thing grinds me up because it&#8217;s hard enough to get deeply into flow in the first place to solve these kinds of problems &#8211; when it&#8217;s fruitless is seems like all the more the waste, and especially so when you&#8217;re working on a Saturday so that when Monday comes you can work on the good stuff without feeling swamped.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/10/05/strokes-and-christina-aguilera-mashup/">Strokes and Christina Aguilera Mashup</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This has been floating around for a while but I seem to forget where to find the Strokes + Christina Aguilera mashup everytime I want it. It&#8217;s a prime example of what might be possible if record labels stopped locking down music and began opening up.</p>
+<p>Here&#8217;s the <a href="http://www.michaelbuffington.com/files/stroke_of_genius.mp3">MP3 of the mashup</a> (which is of course wonderful) but even more wonderful is that there&#8217;s a <a href="http://youtube.com/watch?v=mGJqPKt3MME">video mashup</a> as well.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/10/03/llor-nu-up-again/">llor.nu Up Again</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&#8217;ll be doing a presentation on <a href="http://llor.nu">llor.nu</a> tomorrow at the AjaxWorld Conference in Santa Clara, so I decided to pull <a href="http://llor.nu">llor.nu</a> out of sabattical and get it back online and ready for play. I&#8217;ll leave it this way until the new version comes out.</p>
+<p>If you&#8217;re at the conference, come say hello. <a href="http://flickr.com/photos/x180/194575015/">Here&#8217;s what I look like.</a></p>
+<p>Enjoy!</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/28/happy-birthday-kid/">Happy Birthday Kid</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Exactly four years ago Carrie was starting to go into labor with Leah, our first child, and I was <a href="http://www.michaelbuffington.com/articles/2002/9">not as calm as I seemed at the time.</a></p>
+<p>Four years later and I&#8217;m simply dumbfounded over how <a href="http://flickr.com/photos/buffington/96437421/">intelligent</a>, creative, <a href="http://flickr.com/photos/buffington/81786077/">funny</a> and serious Leah can be. It&#8217;s funny how you can look back at a child from the day their born and say &#8220;ah, yep, she was like that the second her head hit the air&#8221;. You have no idea then that those same sorts of behaviors and personality traits will stick around and strengthen.</p>
+<p>A month or so after Leah was born she became very disciplined at screaming her head off from about 7:00am to 10:00pm, all day long for three months solid. It was the test of all tests. She timed the screaming to coincide with our first winter in Oregon which was quite the shocker having come from Southern California (and having lived in perfect weather our entire lives). We assumed every day for the rest of our lives would be dark and dreadful, filled with the sounds of screaming children. We went slightly insane to say the least.</p>
+<p>At exactly three months (to the nanosecond) of screaming she stopped. She turned into a pudgy happy little baby who was content with the world. Everything was interesting, and everything was something she needed to be a part of. She figured out that her appendages were on her team, and she made quick work of convincing them with different ploys to do what she wanted.</p>
+<p>She still excels at this sort of thing today, and she can be quite convincing. What were once merely grunts and wiggles have now turned into <a href="http://flickr.com/photos/leahsgrandma/140088269/">multi-dimensional plots</a> with traps that pit parent against parent in a way that assures she wins. I&#8217;m considering hiring a lawyer to just sort of hang out and who can pull apart her machinations and combinations so I can at least have some advantage.</p>
+<p>The tricky thing about being able to look back on your child&#8217;s life thus far and say you could have predicted something is that you really can&#8217;t. It all makes sense in the end, but if you were to ask me right now what kind of stuff I think Leah would be interested in in five years and I could only venture a guess.</p>
+<p>Asked today, I&#8217;d say she&#8217;ll be Goth, as she&#8217;s already pretty obsessed with anything gruesome or disgusting. One of her first sentences was &#8220;It&#8217;s dead!&#8221;, referring to a dead dragon fly which she studied for a long time. She broke down in screaming laughing fits once after seeing some kid on TV tentatively poke a dog in the anus, the dog jumping from the intrusion. Ask what her favorite movies are and she&#8217;ll say &#8220;Nightmare Before Christmas, Spirited Away, and Howles Moving Castle&#8221;. Not your exact four year old fare. I suspect on some level she&#8217;ll always allude the norm and I can only hope and pray she continues to be weird and do and like what she likes. This is a girl who, when finding a snake in the backyard, carries it around and kisses it for hours, and I wouldn&#8217;t trade that for anything on this planet.</p>
+<p>Happy Fourth!</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/28/firefox-gaining-ground/">Firefox Gaining Ground</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Some quick stats: for the month of August 49% of visitors to this site used <a href="http://www.mozilla.com/firefox/">Firefox.</a> For September so far, over 57% of visitors use <a href="http://www.mozilla.com/firefox/">Firefox.</a> In both months, visitors who use Internet Explorer are only in the 20% range, with other unknown browsers making up the rest.</p>
+<p>September was a high traffic month as well, so I would have actually expected it to shift less in favor of <a href="http://www.mozilla.com/firefox/">Firefox.</a></p>
+<p>If you&#8217;re on a PC and you&#8217;re not yet using <a href="http://www.mozilla.com/firefox/">Firefox</a> you might as well just give up. Children in Indonesia own your computer despite your best efforts. <a href="http://www.mozilla.com/firefox/">Go get it</a> and never open Internet Explorer again.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/26/in-which-i-discuss-the-ways-of-the-presumed-secret-service/">In Which I Discuss the Ways of the Presumed Secret Service</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Yesterday I was nearly killed in what was almost a serious car accident. Traffic in front of me on a city street stopped abruptly, and I was able to come to a pretty smooth stop. Looking in my rearview mirror revealed that the rather massive black <span class="caps">SUV</span> who had been following some distance behind hadn&#8217;t yet understood that traffic in front of him was at a dead stop. I realized, as he rapidly approached, that he still hadn&#8217;t noticed and unless I got out of his way was going to slam right into me at what I estimated to be about 45-50 miles per hour.</p>
+<p>So I gunned my underpowered hybrid while steering out into the middle turn lane, and he noticed just in time and swerved off to the right, very narrowly missing me and taking flight off the curb, travelling at least ten car lengths down the sidewalk, coming to a stop on the bank.</p>
+<p>I went through several very rapid phases immediately during and after this near death experience. There was the Many Obscenities Phase, the You Crazy Bastard You Nearly Killed Me phase, the I&#8217;m So Glad I&#8217;m Still Alive phase (which didn&#8217;t really kick in until I&#8217;d begun moving again for a few minutes), then there was the final I&#8217;m Glad That&#8217;s Over, What&#8217;s For Lunch phase.</p>
+<p>I was happily into the final phase of this experience when I entered an entirely new and wholly unanticipated phase &#8211; the That Black Suburban Is Now Pulling Me Over phase. The human brain is capable of many things, and it&#8217;s most discomforting when it goes into a fit trying to discover the meaning of some sort of event. In the span of three seconds, about fifteen things went through my mind, only one of which I remember.</p>
+<p>I thought he was pulling me over for something drug related. I have to put this delicately to explain the thought, but basically someone I know recently was arrested for a big sort of illegal drug operation. I thought that just by knowing them, I was somehow guilty as well (which is entirely not true, but this is what your brain does to you).</p>
+<p>I pulled over, totally and completely confused. A man in a grey suit stepped out, red tie, white shirt, black sunglasses, perfect hair, and walked up to my window. He said (not asked), very officially &#8220;You ok.&#8221;</p>
+<p>I said &#8220;Uh, yeah&#8221;. And he said &#8220;Good.&#8221; and walked back to his car. No badge. No apology, nothing beyond a single word answer to my response. I half suspsect he was a robot, but a more accurate description might be that he was an <span class="caps">FBI</span> agent, or Secret Service.</p>
+<p>Upon telling the story to <a href="http://civrot.org/blog/">Vic</a> last night, I wondered outloud if my family would have been given some insane compensation package if the Secret Service had squished me and ever the skeptic of his government he said &#8220;No, you&#8217;d just cease to exist.&#8221; Total buzzkill, as I half believe he&#8217;s right, a belief no doubt strenghtened by the complete bizarre manner in which my Meet Your Maker agent confirmed that he wouldn&#8217;t have to initiate an Incident Sterilization and Subduction Phase on me.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/25/do-what-you-love-do-it-well-and-love-sharing-it-with-others/">Do What You Love, Do It Well and Love Sharing It With Others.</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&#8217;ve happened upon what I think is a universal trait among people that other people consider successful and it&#8217;s dead simple. If you want to be famous, rich, powerful, admired, sought after, or all of those things you need but follow one rule:</p>
+<p><b>Do what you love, do it well and love sharing it with others.</b></p>
+<p>Let&#8217;s see if I&#8217;m right &#8211; I&#8217;ll pick a few people I admire and see if he/she follows the rule. Just of the top off my head here:</p>
+<p><a href="http://www.lairdhamilton.com/">Laird Hamilton</a> &#8211; pro surfer, total wildman. Laird lives to surf, so there&#8217;s no doubt he does what he loves, and he does it well. More importantly though, he talks to everyone he can about why he loves it, and tells people how they can do it.</p>
+<p><a href="http://www.whitehouse.gov/history/presidents/jc39.html">Jimmy Carter</a> &#8211; builds homes for the needy, <a href="http://www.cartercenter.org/homepage.html">humanitarian</a>, also ex US president. Say what you will about his politics, when it comes to building homes for the needy Jimmy is king. He obviously loves <a href="http://www.habitat.org/how/carter.aspx">Habit for Humanity</a>, but again, it&#8217;s his life&#8217;s mission. He&#8217;s a helper, and gets down and dirty and builds alongside other volunteers, and helps others follow his passion.</p>
+<p><a href="http://www.veen.com/jeff/index.html">Jeff Veen</a> &#8211; I had to think for a while exactly what Jeff does, which might break the rule a bit, but decided Jeff is a proponent of doing things the right way on the web. A bit broad, for sure, but if you&#8217;ve ever seen Jeff speak, or read his blog, you might have to agree. I happen to know Jeff, and I know he does what he loves, and he most certainly loves sharing with others.</p>
+<p>Almost universally I think that the real measure of true success isn&#8217;t exactly how rich or famous you are, but how much you&#8217;re willing to give everything you&#8217;ve learned and everything you&#8217;re good at doing back to the community. That sort of free and open behavior creates an amplified echo that refines your skills, and incidentally brings fame and some degree of fortune most of the time.</p>
+<p>I&#8217;m interested in hearing what you think about others who fit the rule (and if it always works).</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/18/getting-into-flow/">Getting Into Flow</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&#8217;ve been thinking heavily lately about <a href="http://www.davidco.com/">Getting Things Done</a>, and getting into flow. Lately I&#8217;ve been hearing the term flow used to describe something I&#8217;ve been accutely aware of for most of my life. It essentially means &#8220;in the zone&#8221; or &#8220;highly focused&#8221;. It&#8217;s when the only thing important at any given moment is the task at hand, and nothing else matters. Your mind is working like a perfect machine and is in a sort of unstoppable state.</p>
+<p>Everyone gets into this state at one point or another &#8211; think of times when you&#8217;ve either been engrossed in creating artwork, photography, playing video games, being athletic, hiking, etc.</p>
+<p>I&#8217;ve been noticing as I get older that it&#8217;s much harder for me to get into this zone. Even the slightest distraction can keep me away from getting into this highly productive state. So I decided to begin describing what seems to work, and what doesn&#8217;t. I&#8217;m not trying to be another <a href="http://www.43folders.com/">Merlin Mann</a> here, but by sharing my experiences I&#8217;m hoping that I&#8217;ll make stronger associations for myself.</p>
+<p>That said, it took me four hours this morning to get to the point where I could even begin to focus on a single task for a several hour stretch. This is mostly because it&#8217;s Monday morning and I have ideas to capture, and communication that I need to conduct with clients and partners (as well as the desire to capture this process here on my blog).</p>
+<p>But with all that behind me, here&#8217;s what&#8217;s getting me in the zone far:</p>
+<ul>
+	<li>Tools that help me quickly dump all my ideas and tasks into a single spot with minimal interface, and a high degree of trust that I&#8217;ll be able to get those ideas back out of the tools.</li>
+	<li>Sound isolating headphones. They block out any noise, even with no music playing, and because I&#8217;ve been productive while wearing them in the past, they&#8217;re helping now.</li>
+	<li>Music I&#8217;ve heard over and over again. New music tends to distract me (because I love new music, and like to savour and untangle the new sounds).</li>
+	<li>Three apps open and only those three &#8211; iTunes, Terminal and Textmate. I risk serious distraction with anything else open.</li>
+	<li>A cold office. Heat slows me down and makes me sleepy (though my office is threatening to warm up now).</li>
+	<li>Pepsi. Sad but true, the caffeine seems to help steady me. I will feel the sugar crash in about 2 hours though, so this needs to be solved. Any more caffeine than a single 12oz can scatters me.</li>
+	<li>Competition. When I feel like what I&#8217;m doing is in close competition with something else, I get a bit crazy and engrossed. I also get engrossed in games for this same reason.</li>
+	<li>Approaching cutoff time. I have four hours to get good work done. Surprisngly, this is a powerful trigger for me.</li>
+</ul>
+<p>I plan on revisiting some these triggers to productivity in the near future as I take more interest in this. For now, I&#8217;m sitting on a surge of flow and I&#8217;m going to ride it out.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2006/09/12/subversion-and-svnrepository-com/">Subversion and svnrepository.com</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I love <a href="http://subversion.tigris.org/">subversion</a>, the version control software. It seems crazy to me that only a little over a two years ago  I didn&#8217;t really get it. I understand and used version control software before, but not something as clean and easy to use as subversion. I can&#8217;t imagine not using it for any development project now.</p>
+<p>But I don&#8217;t like maintaining subversion repositories on web accessible servers. It&#8217;s not that it&#8217;s all that hard, but it&#8217;s just one more thing I have to worry about, one more step in my perfect stack.</p>
+<p>I recently started using <a href="http://svnrepository.com">svnrepository.com</a> to host a lot of my personal projects, and even a few client projects. I have eight Rails application repos currently being hosted (some of them quite large) and I&#8217;m using a sum total of 430kb in space. For $6.95 a month, svnrepository.com gives me 2GB of repo space (which I&#8217;ll likely never fill at my current pace) and provides a very usable interface to build repos and control user access. The interface doesn&#8217;t yet allow you to give anonymous checkout access (something I needed for one of my repos) but sending an email to the admins got an instant response.</p>
+<p>If you have any subversion repositories at all, I highly recommend svnrepository.com. I find them worth every penny.</p>
+<p><b>Update</b></p>
+<p>I totally forgot to mention one more killer feature. Hosted <a href="http://trac.edgewall.org/">Trac</a>, as well as a web interface to administering Trac. That alone is worth $6.95 a month, and you can associate an entire Trac instance for each svn repository, as well as control who else has admin rights to that instance.</p>
+</div>
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/posts/5/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/blog/posts/3/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <div id="about">
+    <img id="me" src="/images/june19_2012_avatar_t.png" width="70" height="70">
+    <p>A blog about technology, agile, startups, hacking, making, learning, and nano fog.</p>
+    <p>by Michael Buffington</p>
+  </div>
+
+  <div id="network">
+    <a href="http://www.linkedin.com/in/michaelbuffington"><img src="/images/icons/linkedin.png" width="16" height="16" alt="linkedin"></a>
+    <a href="http://twitter.com/#!/go"><img src="/images/icons/twitter.png" width="16" height="16" alt="twitter"></a>
+    <a href="http://www.flickr.com/photos/buffington/"><img src="/images/icons/flickr.png" width="16" height="16" alt="flickr"></a>
+  </div>
+
+  <div id="currently">
+    Currently: <span>making things<span>
+  </div>
+
+  <div id="availability">
+    <p>Making custom Lego parts, a UAV, micro-quadcopters, a test driven Coffeescript chemistry simulation, elevator simulation, blimp simulator, multiplayer Excite Bike, chorded keyboard, and a very messy office.</p>
+  </div>
+  <div id="projects">
+    <h3>Past Projects</h3>
+    <a href="/projects/grasshopper/" id="grasshopper" ><img width="80" height="80" alt="Grasshopper" src="/images/grasshopper_80.png"></a>
+    <a href="/projects/mule/"        id="mule"        ><img width="80" height="80" alt="Mule"        src="/images/mule_80.png"></a>
+    <a href="/projects/grockit/"     id="grockit"     ><img width="80" height="80" alt="Grockit"     src="/images/grockit_80.png"></a>
+    <a href="/projects/measuremap/"  id="measuremap"  ><img width="80" height="80" alt="Measuremap"  src="/images/measuremap_80.png"></a>
+    <a href="/projects/typekit/"     id="typekit"     ><img width="80" height="80" alt="Typekit"     src="/images/typekit_80.png"></a>
+    <a href="/projects/stikkit/"     id="stikkit"     ><img width="80" height="80" alt="Stikkit"     src="/images/stikkit_80.png"></a>
+    <a href="/projects/unroll/"      id="unroll"      ><img width="80" height="80" alt="Unroll"      src="/images/unroll_80.png"></a>
+    <a href="/projects/axonome/"     id="axonome"     ><img width="80" height="80" alt="Axonome"     src="/images/axonome_80.png"></a>
+    <a href="/impactjs/"             id="impactjs"    ><img width="80" height="80" alt="Impactjs"    src="/images/impactjs_80.png"></a>
+  </div>
+  <div style="clear:both;"></div>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo">
+    <p>
+      Copyright &copy; 2016 - Michael Buffington
+    </p>
+  </footer>
+</body>
+</html>

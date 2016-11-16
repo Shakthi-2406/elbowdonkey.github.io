@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title> - collusioni.st</title>
+  <meta name="author" content="Michael Buffington">
+
+  
+  <meta name="description" content="
+  
+
+  
+  
+    
+      
+    
+      ColdFusion and Perl
+    
+    
+      
+        
+        
+      
+    
+  
+
+
+  I&#8217;ve gone and stumped myself.
+I b...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+  <link rel="canonical" href="http://collusioni.st/blog/posts/30/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="collusioni.st" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+
+  <link rel="stylesheet" href="/stylesheets/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" type="text/css">
+  <script src="/javascripts/bootstrap.min.js"></script>
+
+
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="http://use.typekit.net/vvo8wuf.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8363810-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  
+</head>
+<body   >
+  <header role="banner">
+    <hgroup>
+      <h1><a href="/">collusioni.st</a></h1>
+    </hgroup>
+  </header>
+  <nav role="navigation">
+    <ul class="main-navigation">
+      <li><a href="/">Blog</a></li>
+      <li><a href="/blog/archives">Archives</a></li>
+    </ul>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/25/coldfusion-and-perl/">ColdFusion and Perl</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&#8217;ve gone and stumped myself.</p>
+<p>I built a <a href="http://www.michaelbuffington.com/cgi-bin/perl-soap/server.pl">web service</a> using Perl with <span class="caps">SOAP</span>::Lite, and I can consume said web service with ColdFusion, but some weird things:</p>
+<p>When I send an array back from the Perl web service, I only get the first element of the array in ColdFusion. ColdFusion sees it as an array, and not a single string, but ignores the rest. I&#8217;ve tested the web service with other platforms besides ColdFusion and at the very least I get a <span class="caps">SOAP</span> packet with three array elements as expected. So I&#8217;m thinking it must be ColdFusion. I haven&#8217;t tried constructing my own <span class="caps">SOAP</span> request packets yet because that could get ugly.</p>
+<p>As far as I know, ColdFusion uses Apache&#8217;s Axis project to consume and serve <span class="caps">SOAP</span> web services. The ColdFusion server is fully patched.</p>
+<p>Also, I&#8217;m not sure why, but I can&#8217;t seem to hit a method within the Perl web service without passing it an argument. I&#8217;m pretty sure it has something to do with my <a href="http://www.fiveoh.com/Perl2CF-10.wsdl"><span class="caps">WSDL</span></a> file which I had to hand author because Generate::<span class="caps">WSDL</span> is total crap.</p>
+<p>Anyone have any ideas?</p>
+<p>To those not technically inclined let it be known that everything I said about the <span class="caps">SOAP</span> and the <span class="caps">WSDL</span> above is not some kind of funny joke.</p>
+<p><b>Update:</b><br />
+After significant poking and prodding, I got the Perl web service to return an array to ColdFusion. I modified the return expression to look something like so:<br />
+<pre>return <span class="caps">SOAP</span>::Data-&gt;name(&#8216;array&#8217; =&gt; @subArray);</pre><br />
+The <em>array</em> part was a semi-educated guess. I knew, after doing some research, that <em>name()</em> was used to rename the packets that were returned to whatever was consuming the web service. I figured &#8220;Let&#8217;s see what happens if I just call it array&#8221; and bam, it worked. It troubles me that I&#8217;m not sure exactly why that works, but I&#8217;m pleased to see it working anyhow.</p>
+<p>The real trick now is to see if I can pass back Perl hashes as ColdFusion structures, and figure out what constitutes a recordset in Perl and pass that back to ColdFusion. Once that&#8217;s done, I polish it up, and turn them in Perl modules somehow (I might enlist the help of those wiser than me with Perl for that).</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/20/outer-space-is-spooky/">Outer Space Is Spooky</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The most terrifying thing I can think of is described in perfect detail in David Bowie&#8217;s Space Oddity. I know it&#8217;s some sort of allegory for his own drug problems or something, but taken literally, it makes my skin crawl.</p>
+<p>Floating helplessly through space in a fully stocked space craft is something that freaks me out more than anything. Even worse, or better depending on how you look at it, is if I got loose on a spacewalk and just started floating away from anything solid. Now that spooks me out more than anything I can think of, and it will likely never happen to me. Nonetheless, it turns my guts inside out thinking of it.</p>
+<p>Watching <em>2001: A Space Oddessy</em> and seeing Dave&#8217;s buddy go flying off into space in his orange suit is nearly more than I can handle.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/19/trial-and-error/">Trial and Error</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Lately I&#8217;ve been paying attention to how I interact with the world, in a physical way. I keep noticing little things I do that I&#8217;ve learned with experience, but now take for granted.</p>
+<p>For example, I was grabbing the towel after having just taken a shower, and without even thinking about why with totally mindless automation pushed the little knob that diverts water from the tub faucet to the overhead shower to release the water left in the pipe, reached out to grab the towel, balancing so that my forward leaning weight wouldn&#8217;t push my feet out behind me, leaving me on my face. All of this required no extra thought or consideration, and just happened, just as all sorts of other complicated physical interactions just happen.</p>
+<p>I&#8217;ve been learning how to do transition gaps in skateboarding (if that&#8217;s even what it&#8217;s called). The idea is to launch from one transition and flow into another one. With practice, it&#8217;s a super simple maneuver, but for me, it&#8217;s proving difficult. Having grown up street skating, there were rarely transitions set up to make it possible on the street, so I&#8217;ve had no practice with perfect park conditions. My instinct is to pop off the edge of the transition as if I&#8217;m doing a big ollie, but that backfires as it throws me out way too far, and I miss my smooth re-entry into another transition. I&#8217;m learning that even the most subtle movement of my feet can make me fail, and that holding still and moving fast is the key.</p>
+<p>I see this same kind of progress on a minute by minute basis with my kids. The younger one is learning how to move his arms where he wants them, the older one is learning how to jump. It reminds me that what I so easily take for granted today, being able to move automatically without any extra thought or effort, had to be learned through trial and error.</p>
+<p>I often get frustrated with learning new things. New programming languages, new software, new ways of thinking about the world. I should remind myself that nothing is automatic at first, and that anything I&#8217;ve learned has happened through trial and error.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/18/technology-yum/">Technology. Yum.</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Over the weekend we, meaning the two kids and Carrie and myself, drove out to visit family in Utah. From Portland it&#8217;s at least a twelve hour drive, but we broke it up by staying at a friends house overnight in Boise.</p>
+<p>The trip would have been nearly unbearable had it not been for the fact that I went to Fry&#8217;s at the last second and bought a portable <span class="caps">DVD</span> player. I debated with myself about whether I wanted to spend $300 to let Leah space out while we drove endless hours, and finally decided that avoiding even just an hour of crying was worth $300.</p>
+<p>It turns out that Leah loved it, and having it probably made the trip far more bearable for her than it would have been.</p>
+<p>I&#8217;m also testing out my mobile office. I brought my laptop, <span class="caps">PBX</span> extender, and big old honkin&#8217; office phone with me so that I could stay completely connected and hole up in a corner of the house to do my normal day to day routine. So far it&#8217;s working great.</p>
+<p>As we visit with grandparents and such, it strikes me how much has happened since they were my age. Carrie was explaining to her grandfather how I could have my office anywhere, as long as I had an Internet connection, and on top of that, if I had a wireless connection I could have my computer and phone anywhere within range. Even though he&#8217;s been a humble cattle rancher all his life, he completely grasped the concept. His technical savvy is right up there, which I find amazing considering all the technological advancements that he&#8217;s seen in his life. I can hardly keep with current pace, and what I&#8217;ve seen in my lifetime is miniscule compared to what he&#8217;s seen.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/18/kerry-states-the-obvious/">Kerry States the Obvious</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I think I&#8217;m totally missing something obvious. Dick Cheney&#8217;s daughter is a lesbian. That&#8217;s no secret. I&#8217;ve heard people talking about it for almost a year, and couldn&#8217;t care less. Kerry said &#8220;Dick Cheney&#8217;s daughter is a lesbian&#8221; and suddenly <a href="http://www.suntimes.com/output/novak/cst-edt-novak18.html">people are throwing fits.</a> What am I missing? Why are people calling it dirty politics? Why is any of this relevant?</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/07/cf-dropcash/">&lt;cf_dropcash&gt;</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I whipped up a ColdFusion custom tag to quickly convert <a href="http://www.dropcash.com">dropcash.com</a> campaign data into something easier to work with in ColdFusion called <a href="http://www.michaelbuffington.com/coldfusion/cf_dropcash.zip">cf_dropcash.</a></p>
+<p>Also built into the tag is a way to generate a badge identical to the current official badge. This is more or less just an example of what to do with the data once it&#8217;s in ColdFusion.</p>
+<p>On another note, I&#8217;d love to talk to someone who wants to help me expand upon this idea and build cool Flash enabled badges using Flash remoting.</p>
+<p>Eventually I&#8217;ll make a <span class="caps">CFC</span> that could be used to drive a Flash app, and would host it on my server so that the happy little Flash badges could access it remotely.</p>
+<p>To install the custom tag, just <a href="http://www.michaelbuffington.com/coldfusion/cf_dropcash.zip">download it</a> and check out the header of the custom tag. To use the tag, just call it from within your <span class="caps">CFML</span> template like so:</p>
+<p><code>
+&amp;lt;cf_dropcash campaign="michaelbuffington/cf_dropcash" /&amp;gt;
+</code></p>
+<p>If you like it, and use it, <a href="http://www.dropcash.com/campaign/michaelbuffington/cf_dropcash/">toss a buck or two into the campaign.</a></p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/04/private-spacetravel/">Private Spacetravel</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a title="CNN.com - SpaceShipOne captures X Prize - Oct 4, 2004" href="http://www.cnn.com/2004/TECH/space/10/04/spaceshipone.attempt.cnn/index.html"><span class="caps">CNN</span>.com &#8211; SpaceShipOne captures X Prize &#8211; Oct 4, 2004</a></p>
+<p>X Prize officials said the privately funded craft reached 368,000 feet &#8212; well into space &#8212; Monday to win the $10 million prize.</p>
+<p>I&#8217;m confident that my kids will be able to fly to space as easily as I can fly from Portland to Boston in their lifetime. Richard Branson is investing $25M in Virgin Galactic (which sounds so Disney Tomorrowland-esque, but is so real) which he expects could fly 3,000 people within five years.</p>
+<p>I think things truly change starting today.</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/02/debate-spotter/">Debate Spotter</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I find it intriguing that during the entire debate between Bush and Kerry, that no one ever said <a href="http://overstated.net/projects/debates/index.asp?p=meat&amp;s=">meat.</a> Not even Jim Lehrer! I know this because I used Cameron&#8217;s new tool, the <a title="Debate Spotter" href="http://overstated.net/projects/debates/">Debate Spotter.</a></p>
+<p>Bush said <a href="http://overstated.net/projects/debates/index.asp?p=got+killed&amp;s=&amp;f=on">got killed</a> twice. If I were the pedantic sort, I&#8217;d cry foul, seeing that you can&#8217;t <i>get</i> a verb in past tense, or any tense for that matter. I can die, or change it to &#8220;was killed&#8221; but &#8220;got killed&#8221; just doesn&#8217;t work for me.</p>
+<p>Kerry said <a href="http://overstated.net/projects/debates/index.asp?p=maimed&amp;s=&amp;f=on">maimed.</a> Lehrer said <a href="http://overstated.net/projects/debates/index.asp?p=die&amp;s=&amp;f=on">die.</a> Bush said <a href="http://overstated.net/projects/debates/index.asp?p=he+forgot+poland&amp;s=&amp;f=on">he forgot Poland,</a> and here&#8217;s a <a href="http://www.youforgotpoland.com/">picture of him saying that.</a></p>
+<p>I&#8217;d like Cameron to open this up for weblogs so I can see how many times I&#8217;ve said <a href="http://www.michaelbuffington.com/cgi-bin/mt/mt-search.cgi?search=rancid+milk&amp;Template=fiveoh&amp;IncludeBlogs=2">rancid milk</a> or <a href="http://www.michaelbuffington.com/cgi-bin/mt/mt-search.cgi?search=haircut&amp;Template=fiveoh&amp;IncludeBlogs=2">haircut.</a></p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/10/01/tivo-rocks/">TiVo Rocks!</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last night around 8:30PM our entire house lost power. In most cases, this wouldn&#8217;t be so bad, but we have high energy needs here at the Buffington complex. There&#8217;s all of the computers, the aquarium pumps and lighting, and then there&#8217;s Tivo.</p>
+<p>Tivo was happily recording the latest episode of Survivor (which we take seriously in these parts) when the loss of powered occurred. Within seconds though, all power was restored, and my first thought was &#8220;Dang! I&#8217;ve lost the first half of Survivor. I better at least go set TiVo up to record the rest of it.&#8221;</p>
+<p>When TiVo finished booting, I noticed that it immediately began recording the rest of Survivor, but that it had also saved everything up until the power outage. Fantastic!</p>
+</div>
+    </article>
+  
+  
+    <article>
+      <header>
+    
+      <h1 class="entry-title"><a href="/blog/2004/09/29/shame-on-pdx/">Shame on PDX</a></h1>
+    
+    
+      <p class="meta">
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Carrie and I flew into Portland International with our two kids last night, complete with two car seats, and four bags, various backpacks and diaper bags. While Carrie watched the kids and gathered up the luggage, I took the shuttle to the economy parking lot to retrieve our truck, and made my way back to the terminal to load up.</p>
+<p>I ran inside, grabbed the car seats, and brought them out to the truck and began installing them with the intention of getting the kids in the car so Carrie and I could get the rest of the luggage in. Before too long the traffic control guy was blowing his whistle at a few cars around me with people waiting, telling them that the curb was for loading only, no waiting.</p>
+<p>It took me a while before I realized that he was also whistling at me. He came up to the back of the car where I was loading a car seat, tugging me by my pants belt loop as I was hunched over the seat trying to buckle it in. He said &#8220;Sir, this is the last time I&#8217;m going to blow my whistle at you. This zone is for immediate loading only.&#8221; I figured he couldn&#8217;t tell I was installing the seat, and said &#8220;That&#8217;s exactly what I&#8217;m doing&#8221; in what I felt was a pretty calm and rational tone considering I&#8217;d just spent the last 5 hours with a toddler and infant and tons of luggage getting my little family to the airport and on to a two hour flight.</p>
+<p>He seriously flipped out at the point. &#8220;I&#8217;m going to tell you one last time &#8211; if you don&#8217;t get your ass out of here I&#8217;ll have the police do it for you.&#8221; So I matched his intensity, and seriously flipped out. You know when you see baseball coaches get in shouting matches with baseball umpires, and their faces are about two inches away from each other? We did that for a moment. I calmly yelled in his face that right on the other side of the glass, in his view, was my wife and kids and all of their luggage, waiting to load. He responded by calmly yelling that I would probably be arrested. I calmly yelled back that there was no way I could load my family without spending some time loading my car seat. I was seriously upset.</p>
+<p>After we spent some time exchanging communication at high decibels, he turned to someone waiting to get picked up and said &#8220;Can you believe this guy&#8221; referring to me. And the businessman he was trying to get on his side turned out to be on my side. He said &#8220;Yes. I can.&#8221; very firmly, and then &#8220;His family is right there with all their luggage. He&#8217;s going as fast as he can.&#8221;</p>
+<p>He didn&#8217;t like this and said he&#8217;d arrest me if I didn&#8217;t move the truck. So I got in the truck, fully intending to drive four feet, and stopping again, but figured that might not be a good idea, and left to go right back around the terminal to &#8220;reset&#8221; this man&#8217;s &#8220;clock&#8221;.</p>
+<p>By that time, Carrie had managed to get the rest of the luggage and kids to the curb. She hadn&#8217;t seen what happened, but knew something was up because the guy was heading my way again, very agitated. I quickly explained what was up, and I think he was able to say &#8220;You gotta get that truck out of here&#8221; before Carrie seriously unleashed on him. I can&#8217;t remember what she said, but it was intense, and in his face. At that point, I was asking him to bring the police because it was crystal clear that I was loading while he kept telling us to get out of there. I expected that they&#8217;d show a traveling family a little more respect also, and side with us.</p>
+<p>He never did bring the police, and interestingly, when Carrie brought out a pen and paper to write down the guy&#8217;s name, he vanished. I think he realized he didn&#8217;t have a leg to stand on when we were indeed loading, and was trying to duck out instead of stop and accept his defeat.</p>
+<p>Having now spent at least 18 hours or so cooling off and thinking about the incident, one thing is disturbing. As a family with kids in car seats, there was no way to immediately load, according to his definition of immediate, the car seats. Car seats take time to load, and even if Carrie had been standing there with all the luggage to begin with, it would have taken 20 minutes to load the seats. They have to be done properly, and you can&#8217;t rush it.</p>
+<p>So we&#8217;re not dropping this issue. We&#8217;re going to file a complaint with the airport, sending all communication via certified mail, and we&#8217;re going to try to get two things accomplished by doing so: a formal apology from the wannabe traffic cop, and an official statement on how parents traveling with kids can install car seats. Maybe they need a zone where car seats or other types of items (like wheel chairs, etc) can be installed within close proximity to the baggage claim. Depending on their official statement, we might take it further.</p>
+</div>
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/posts/31/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/blog/posts/29/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <div id="about">
+    <img id="me" src="/images/june19_2012_avatar_t.png" width="70" height="70">
+    <p>A blog about technology, agile, startups, hacking, making, learning, and nano fog.</p>
+    <p>by Michael Buffington</p>
+  </div>
+
+  <div id="network">
+    <a href="http://www.linkedin.com/in/michaelbuffington"><img src="/images/icons/linkedin.png" width="16" height="16" alt="linkedin"></a>
+    <a href="http://twitter.com/#!/go"><img src="/images/icons/twitter.png" width="16" height="16" alt="twitter"></a>
+    <a href="http://www.flickr.com/photos/buffington/"><img src="/images/icons/flickr.png" width="16" height="16" alt="flickr"></a>
+  </div>
+
+  <div id="currently">
+    Currently: <span>making things<span>
+  </div>
+
+  <div id="availability">
+    <p>Making custom Lego parts, a UAV, micro-quadcopters, a test driven Coffeescript chemistry simulation, elevator simulation, blimp simulator, multiplayer Excite Bike, chorded keyboard, and a very messy office.</p>
+  </div>
+  <div id="projects">
+    <h3>Past Projects</h3>
+    <a href="/projects/grasshopper/" id="grasshopper" ><img width="80" height="80" alt="Grasshopper" src="/images/grasshopper_80.png"></a>
+    <a href="/projects/mule/"        id="mule"        ><img width="80" height="80" alt="Mule"        src="/images/mule_80.png"></a>
+    <a href="/projects/grockit/"     id="grockit"     ><img width="80" height="80" alt="Grockit"     src="/images/grockit_80.png"></a>
+    <a href="/projects/measuremap/"  id="measuremap"  ><img width="80" height="80" alt="Measuremap"  src="/images/measuremap_80.png"></a>
+    <a href="/projects/typekit/"     id="typekit"     ><img width="80" height="80" alt="Typekit"     src="/images/typekit_80.png"></a>
+    <a href="/projects/stikkit/"     id="stikkit"     ><img width="80" height="80" alt="Stikkit"     src="/images/stikkit_80.png"></a>
+    <a href="/projects/unroll/"      id="unroll"      ><img width="80" height="80" alt="Unroll"      src="/images/unroll_80.png"></a>
+    <a href="/projects/axonome/"     id="axonome"     ><img width="80" height="80" alt="Axonome"     src="/images/axonome_80.png"></a>
+    <a href="/impactjs/"             id="impactjs"    ><img width="80" height="80" alt="Impactjs"    src="/images/impactjs_80.png"></a>
+  </div>
+  <div style="clear:both;"></div>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo">
+    <p>
+      Copyright &copy; 2016 - Michael Buffington
+    </p>
+  </footer>
+</body>
+</html>

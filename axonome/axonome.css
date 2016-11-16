@@ -1,0 +1,96 @@
+#exploding {
+  position:relative;
+  width:436px;
+  height:256px;
+}
+
+#example {
+  padding:5px;
+  width:26em;
+  background-color: #191A1B;
+}
+
+#board {
+  position:absolute;
+  top: 20px;
+  left: 20px;
+  overflow:visible;
+}
+
+#shadow {
+  position:absolute;
+  top: 41px;
+  left: 20px;
+  overflow:visible;
+}
+
+#newness {
+  position:absolute;
+  top: 40px;
+  left: 360px;
+  width:273px;
+  text-align:right;
+  color:white;
+  font-size:12px;
+}
+
+#shadow div {
+  width:16px;
+  height:17px;
+  position:absolute;
+  display:block;
+  background:url('demos/images/cube_orange.png') no-repeat bottom left;
+}
+
+#shadow .layer_0, #shadow .layer_2, #shadow .layer_4, #shadow .layer_6, #shadow .layer_8 {
+  width:16px;
+  height:17px;
+  position:absolute;
+  display:block;
+  background:url('demos/images/cube_blue.png') no-repeat bottom left;
+}
+
+#shadow .layer_2 {
+  width:16px;
+  height:17px;
+  position:absolute;
+  display:block;
+  background: none;
+}
+
+#shadow .dirt {
+  width:16px;
+  height:17px;
+  position:absolute;
+  display:block;
+  background:url('demos/images/cube_shadow.png') no-repeat bottom left;
+}
+
+#board .dirt {
+  width:16px;
+  height:17px;
+  position:absolute;
+  display:block;
+  background:url('demos/images/cube_red.png') no-repeat top left;
+}
+
+.red {
+  background:url('demos/images/cube_red.png') no-repeat top left !important;
+}
+
+.blue {
+  background:url('demos/images/cube_blue.png') no-repeat top left !important;
+}
+
+#content {
+  margin-top:20px;
+  width:500px;
+  background-color:white;
+  opacity:0.75;
+  padding:10px;
+}
+
+#content h1 {
+  margin:0;
+  padding:0;
+}
